@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
-const C=require('../focus-core.js');const data=vm.runInNewContext(fs.readFileSync('english-oral-hub/manifesto-data.js','utf8')+'\n'+fs.readFileSync('english-oral-hub/focus-data.js','utf8')+'\n({PARTIES,VOTERS})');
+const C=require('../focus-core.js');const data=vm.runInNewContext(fs.readFileSync(__dirname+'/../manifesto-data.js','utf8')+'\n'+fs.readFileSync(__dirname+'/../focus-data.js','utf8')+'\n({PARTIES,VOTERS})');
 const {PARTIES,VOTERS}=data;assert.equal(VOTERS.length,8);for(const v of VOTERS){assert.ok(v.objection);assert.ok(v.followups.length===3);}
 const all=C.blank();let previous=null;
 for(const pi of [0,3]){
@@ -15,6 +15,6 @@ for(const pi of [0,3]){
 }
 assert.throws(()=>C.cleanSession({...all.parties[0],rounds:[...all.parties[0].rounds,all.parties[0].rounds[0]]},0,VOTERS));
 assert.throws(()=>C.cleanSession({...all.parties[0],rounds:[all.parties[0].rounds[0],all.parties[0].rounds[0]]},0,VOTERS));
-for(const f of ['focus-core.js','focus-groups.js','focus-teacher.js'])new vm.Script(fs.readFileSync('english-oral-hub/'+f,'utf8'));
-const ui=fs.readFileSync('english-oral-hub/focus-groups.js','utf8'),teacher=fs.readFileSync('english-oral-hub/focus-teacher.js','utf8');assert.ok(!ui.includes("setItem('oral-manifesto"));assert.ok(!teacher.includes('setItem(OLD'));
+for(const f of ['focus-core.js','focus-groups.js','focus-teacher.js'])new vm.Script(fs.readFileSync(__dirname+'/../'+f,'utf8'));
+const ui=fs.readFileSync(__dirname+'/../focus-groups.js','utf8'),teacher=fs.readFileSync(__dirname+'/../focus-teacher.js','utf8');assert.ok(!ui.includes("setItem('oral-manifesto"));assert.ok(!teacher.includes('setItem(OLD'));
 console.log('PASS: two parties × four full rounds, unique voters, staged objections, policy limit, custom policies, pressure limit, verdict gating, restore validation, summaries, earlier data isolation and JavaScript syntax.');
