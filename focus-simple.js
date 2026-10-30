@@ -2,7 +2,7 @@
 const byId=id=>document.getElementById(id),safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let encounter=0,revealed=false,firstVoter=0;
 function draw(){const finished=encounter===4,v=VOTERS[(firstVoter+encounter)%VOTERS.length];byId('counter').textContent=finished?'FINAL REFLECTION':`VOTER ${encounter+1} OF 4`;
-byId('voter').hidden=finished;byId('closing').hidden=!finished;byId('actions').hidden=finished;
+byId('voter').hidden=finished;byId('closing').hidden=!finished;byId('actions').hidden=finished;byId('next-hint').hidden=finished;byId('next-hint').textContent=revealed?'After the reply and oral verdict, move to the next voter.':'After the party’s first answer, show the objection. Then you can move to the next voter.';byId('start-with').value=String(firstVoter);
 if(!finished){byId('name').textContent=v.name+', '+v.age;byId('role').textContent=v.role;byId('background').innerHTML=v.background.map(x=>`<li>${safe(x)}</li>`).join('');byId('concerns').textContent=v.concerns.join(' · ');byId('objection').hidden=!revealed;byId('quote').textContent='“'+v.objection+'”';byId('followup').textContent=v.followups[0];byId('reveal').disabled=revealed;byId('reveal').textContent=revealed?'Objection revealed':'Show objection';byId('next').disabled=!revealed;byId('next').textContent=encounter===3?'Finish & reflect':'Next voter';} }
 byId('reveal').onclick=()=>{revealed=true;draw();byId('objection').scrollIntoView({behavior:'smooth',block:'nearest'});};
 byId('next').onclick=()=>{if(!revealed)return;encounter++;revealed=false;draw();byId('main').focus();window.scrollTo(0,0);};
