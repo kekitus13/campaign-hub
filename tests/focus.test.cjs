@@ -18,3 +18,5 @@ assert.throws(()=>C.cleanSession({...all.parties[0],rounds:[all.parties[0].round
 for(const f of ['focus-core.js','focus-groups.js','focus-teacher.js'])new vm.Script(fs.readFileSync(__dirname+'/../'+f,'utf8'));
 const ui=fs.readFileSync(__dirname+'/../focus-groups.js','utf8'),teacher=fs.readFileSync(__dirname+'/../focus-teacher.js','utf8');assert.ok(!ui.includes("setItem('oral-manifesto"));assert.ok(!teacher.includes('setItem(OLD'));
 console.log('PASS: two parties × four full rounds, unique voters, staged objections, policy limit, custom policies, pressure limit, verdict gating, restore validation, summaries, earlier data isolation and JavaScript syntax.');
+const longSource=C.source({main:'m'.repeat(1000),own:['p'.repeat(999)],roles:['n'.repeat(999)]});assert.equal(longSource.main.length,999);assert.equal(longSource.own[0].length,999);assert.equal(longSource.roles[0].length,999);
+const longSession=C.fresh();longSession.reflections.hardest='r'.repeat(1000);assert.equal(C.cleanSession(longSession,0,VOTERS).reflections.hardest.length,999);
