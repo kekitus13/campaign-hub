@@ -13,3 +13,7 @@ const saved=JSON.parse(memory.get('oral-media-day-v1'));assert.equal(saved.parti
 for(const k of prior)assert.equal(memory.get(k),before.get(k),'Earlier campaign storage changed: '+k);
 assert(!fs.readFileSync(root+'media-day.js','utf8').includes("setItem('oral-manifesto"));
 console.log('PASS: complete conference, 2 card types, follow-up, different speaker, pressure cap, news decision, debrief, reload, custom policies and all previous storage unchanged.');
+
+events.input({target:{dataset:{field:'hardest'},value:'x'.repeat(1000)}});events.input({target:{dataset:{field:'message'},value:'y'.repeat(999)}});run('media=MediaCore.clean(JSON.parse(localStorage.getItem(MediaCore.KEY)))');assert.equal(run('current().debrief.hardest.length'),999);assert.equal(run('current().message.length'),999);
+run("current().journalists=[];current().points=['z'.repeat(999)];media=MediaCore.clean(media)");assert.equal(run('current().journalists.length'),2);assert.equal(run('current().points[0].length'),999);assert(run('source().policies.includes(current().points[0])'));
+console.log('PASS: 999-character reload, over-limit input, default journalist recovery and changed custom policy remains selectable.');
