@@ -1,0 +1,6 @@
+/* Readable notes without expanding the page unnecessarily. */
+.character-count{display:block;text-align:right;font-size:12px;font-weight:normal;color:#536458;margin-top:4px}
+textarea[maxlength="999"]{display:block;width:100%;box-sizing:border-box;min-height:76px;max-height:420px;resize:vertical;padding:10px;border:1px solid #acb8ab;border-radius:8px;background:#fff;color:inherit;font:inherit;font-weight:normal;line-height:1.5;margin-top:6px}
+textarea:focus-visible{outline:3px solid #a97712;outline-offset:3px}
+.card,.policy,.rule,details,td,.banner{overflow-wrap:anywhere;min-width:0}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}*{animation:none!important;transition:none!important}}
