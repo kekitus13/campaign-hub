@@ -1,5 +1,5 @@
 'use strict';
-// Read only the three student work stores. Teacher vaults are never read or exported.
+// Read only student work stores only. Teacher vaults are never read or exported.
 const CampaignWord=(()=>{
 const enc=new TextEncoder(),xml=s=>String(s??'').replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g,'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
 const cardNames=['Clarification','Fairness','Cost and resources','Consequences','Reality check','Contradiction','Comparison'];
@@ -8,7 +8,7 @@ const list=x=>Array.isArray(x)?x:[],text=x=>typeof x==='string'?x:'';
 function collect(index,storage,overrides={}){
  if(!Number.isInteger(index)||!PARTIES[index])throw Error('Select a party first.');
  const read=k=>{const raw=storage.getItem(k);if(!raw)return null;try{return JSON.parse(raw)}catch(_){throw Error('Some saved campaign data could not be read. Keep your backup and restore it before exporting.');}};
- const day1=overrides.manifesto||read('oral-manifesto-v1'),day2=read('oral-focus-groups-v1'),day3=overrides.media||read('oral-media-day-v1');
+ const day1=overrides.manifesto||read('oral-manifesto-v1'),day2=read('oral-focus-groups-v1'),day3=overrides.media||read('oral-media-day-v1'),prepared=overrides.prepared||read('oral-media-prepared-v1');
  const d=day1?.parties?.[index]||day2?.sources?.[index]||{},f=day2?.parties?.[index],m=day3?.parties?.[index],p=PARTIES[index],rows=[];
  const add=(value,style='Normal')=>rows.push({text:String(value??''),style});
  const field=(label,value)=>{if(value!==undefined&&value!==null&&String(value).trim())add(label+': '+value);};
@@ -29,10 +29,12 @@ function collect(index,storage,overrides={}){
  heading('Voter Focus Groups');const rounds=[...list(f?.rounds),...(f?.current?[f.current]:[])];if(!rounds.length)add('No recorded voter encounters for this party. The simple projected activity uses oral responses and does not save them.');
  rounds.forEach((r,i)=>{add('Encounter '+(i+1)+(r===f?.current?' in progress':''),'Heading2');const names=['Alex','Carmen','Daniel','Laura','David','Sara','Miguel','Nadia'];field('Voter',names[r.voter_profile_id]);field('Concerns',list(r.voter_concerns).join(', '));field('Policies discussed',list(r.selected).map(p=>text(p.text)).filter(Boolean).join(' / '));for(const [k,label] of Object.entries({objection:'Objection',followup:'Follow-up',pressure:'Pressure challenge',speaker:'Speaker',verdict:'Verdict',reason:'Reason',reflection:'Reflection'}))field(label,r[k]);});
  for(const [key,label] of Object.entries({liked:'What voters liked',difficult:'What was difficult',modify:'What we would change',hardest:'Hardest objection'}))field(label,f?.reflections?.[key]);
- heading('Media Day');if(!m)add('No Media Day notes saved for this party in this browser.');else{
+ heading('Media Day · Earlier session');if(!m)add('No Media Day notes saved for this party in this browser.');else{
  field('Conference stage',{prep:'Preparation',opening:'Opening statement',questions:'Media questions',final:'Final message',done:'Conference complete'}[m.stage]);field('Media message',m.message);field('Policies likely to be challenged',list(m.points).join(' / '));field('Journalist groups',list(m.journalists).map(i=>PARTIES[i]?.name).filter(Boolean).join(', '));field('Media cards faced',list(m.cards).map(i=>cardNames[i]).filter(Boolean).join(', '));field('Follow-ups',m.followups||0);field('Speaker changes',m.switches||0);list(m.pressure).forEach(q=>field('Pressure question',q));
  if(day3.news?.revealed){field('Breaking News scenario',newsNames[day3.news.id]);field('Our decision',day3.news.decisions?.[index]||'Not recorded');}
  for(const [key,label] of Object.entries({hardest:'Hardest question',best:'Answer we handled best',improve:'What we need to explain better',changed:'Did the media change our presentation'}))field(label,m.debrief?.[key]);}
+ const preparedParty=prepared?.parties?.[index];
+ if(preparedParty){heading('Media Day · Three prepared questions');field('Conference status',preparedParty.stage==='done'?'Complete':'In preparation / in progress');add('Answer → Explain why → Give an example / consequence. Preparation notes only; no full scripts.');[0,1,2].forEach(i=>{add('Question '+(i+1),'Heading2');field('Question',preparedParty.questions?.[i]);field('Preparation notes',preparedParty.notes?.[i]);});}
  return rows;
 }
 function crc(data){let c=0xffffffff;for(const b of data){c^=b;for(let i=0;i<8;i++)c=(c>>>1)^((c&1)?0xedb88320:0);}return (c^0xffffffff)>>>0;}
