@@ -1,5 +1,5 @@
 'use strict';
-// Read only student work stores only. Teacher vaults are never read or exported.
+// Read only student work stores. Teacher vaults are never read or exported.
 const CampaignWord=(()=>{
 const enc=new TextEncoder(),xml=s=>String(s??'').replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g,'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
 const cardNames=['Clarification','Fairness','Cost and resources','Consequences','Reality check','Contradiction','Comparison'];
@@ -8,7 +8,7 @@ const list=x=>Array.isArray(x)?x:[],text=x=>typeof x==='string'?x:'';
 function collect(index,storage,overrides={}){
  if(!Number.isInteger(index)||!PARTIES[index])throw Error('Select a party first.');
  const read=k=>{const raw=storage.getItem(k);if(!raw)return null;try{return JSON.parse(raw)}catch(_){throw Error('Some saved campaign data could not be read. Keep your backup and restore it before exporting.');}};
- const day1=overrides.manifesto||read('oral-manifesto-v1'),day2=read('oral-focus-groups-v1'),day3=overrides.media||read('oral-media-day-v1'),prepared=overrides.prepared||read('oral-media-prepared-v1');
+ const day1=overrides.manifesto||read('oral-manifesto-v1'),day2=read('oral-focus-groups-v1'),day3=overrides.media||read('oral-media-day-v1'),prepared=overrides.prepared||read('oral-media-prepared-v1'),alliance=overrides.alliance||read('oral-alliance-v1');
  const d=day1?.parties?.[index]||day2?.sources?.[index]||{},f=day2?.parties?.[index],m=day3?.parties?.[index],p=PARTIES[index],rows=[];
  const add=(value,style='Normal')=>rows.push({text:String(value??''),style});
  const field=(label,value)=>{if(value!==undefined&&value!==null&&String(value).trim())add(label+': '+value);};
@@ -35,6 +35,8 @@ function collect(index,storage,overrides={}){
  for(const [key,label] of Object.entries({hardest:'Hardest question',best:'Answer we handled best',improve:'What we need to explain better',changed:'Did the media change our presentation'}))field(label,m.debrief?.[key]);}
  const preparedParty=prepared?.parties?.[index];
  if(preparedParty){heading('Media Day · Three prepared questions');field('Conference status',preparedParty.stage==='done'?'Complete':'In preparation / in progress');add('Answer → Explain why → Give an example / consequence. Preparation notes only; no full scripts.');[0,1,2].forEach(i=>{add('Question '+(i+1),'Heading2');field('Question',preparedParty.questions?.[i]);field('Preparation notes',preparedParty.notes?.[i]);});}
+ const a=alliance?.parties?.[index];
+ if(a){heading('Alliance Day');add('Possible cooperation only. No official coalition has been agreed.');list(a.meetings).forEach((m,i)=>{if(!/^[0-6]$/.test(String(m.party))||+m.party===index)return;add('Meeting '+(i+1)+' · '+PARTIES[+m.party].name,'Heading2');field('Agreement',m.agreement);field('Disagreement',m.disagreement);field('Cooperation',m.cooperation);});add('Party classifications','Heading2');Object.entries(a.classification||{}).forEach(([i,v])=>{if(PARTIES[i]&&+i!==index)field(PARTIES[i].name,v);});if(/^[0-6]$/.test(String(a.ally)))field('Best possible ally',PARTIES[+a.ally].name);field('Shared policy',a.shared);field('Possible joint project',a.project);if(/^[0-6]$/.test(String(a.rival)))field('Main rival',PARTIES[+a.rival].name);field('Major disagreement',a.difference);}
  return rows;
 }
 function crc(data){let c=0xffffffff;for(const b of data){c^=b;for(let i=0;i<8;i++)c=(c>>>1)^((c&1)?0xedb88320:0);}return (c^0xffffffff)>>>0;}
