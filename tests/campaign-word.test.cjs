@@ -6,11 +6,13 @@ const items={'oral-manifesto-v1':{parties:[main]},'oral-focus-groups-v1':{partie
 items['oral-media-prepared-v1']={parties:[{stage:'done',questions:['Prepared question 1','Prepared question 2','Prepared question 3'],notes:['New preparation notes','','']}]};
 items['oral-alliance-v1']={parties:[{meetings:[{party:'4',agreement:'Practical education',disagreement:'Technology',cooperation:'MAYBE'}],classification:{4:'Natural ally'},ally:'4',shared:'Practical education',project:'Career guidance sessions',rival:'3',difference:'Use of technology'}]};
 items['oral-alliance-v1'].parties[0].pact={partners:['4'],priority:'Access to learning',contributions:{0:'Life skills',4:'Teaching expertise'},policy:'Joint workshops',beneficiaries:'Students',implementation:'Monthly sessions',compromise:'Balanced technology use'};
+items['oral-rival-v1']={debates:[{parties:[0,1],motion:'Who gets priority?',notes:[{position:'Fair access',argument1:'Affordable travel'}],observers:[{argument:'Clear example',rebuttal:'Challenges the cost',compromise:'Improve public transport'}],speakers:[[{turns:3,argument:true,reaction:true,qa:true}]]}]};
 const before=JSON.stringify(items);context.storage={getItem(k){assert(k in items,'Unexpected data access '+k);return JSON.stringify(items[k])}};
 const rows=vm.runInContext('CampaignWord.collect(0,storage)',context);assert(rows.some(x=>x.text.includes('Learning Together')));assert(rows.some(x=>x.text.includes('Access to education & work')));assert(rows.some(x=>x.text==='Our decision: Modify'));assert.equal(JSON.stringify(items),before);
 assert(rows.some(x=>x.text==='Preparation notes: New preparation notes'));assert(rows.some(x=>x.text==='Question: Prepared question 3'));
 assert(rows.some(x=>x.text==='Possible joint project: Career guidance sessions'));assert(rows.some(x=>x.text==='Main rival: Digital Tomorrow'));
 assert(rows.some(x=>x.text==='Our joint policy: Joint workshops'));assert(rows.some(x=>x.text==='Parties in our alliance: New Generation + Learning Together'));
+assert(rows.some(x=>x.text==='Our position: Fair access'));assert(rows.some(x=>x.text==='Best rebuttal: Challenges the cost'));
 context.rows=rows;const data=vm.runInContext('CampaignWord.docx(rows)',context);assert.equal(data[0],0x50);assert.equal(data[1],0x4b);fs.writeFileSync('/tmp/campaign-word-qa.docx',data);
 context.storage={getItem:()=>null};assert(vm.runInContext('CampaignWord.collect(6,storage)',context).some(x=>x.text.includes('No Manifesto')));
 console.log('PASS: combined party data, readable labels, empty notes, real ZIP DOCX, no teacher data access, source data unchanged.');
